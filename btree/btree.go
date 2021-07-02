@@ -2,6 +2,7 @@ package btree
 
 import (
 	"fmt"
+	"math"
 )
 
 type btree struct {
@@ -33,6 +34,7 @@ func (b *btree) Insert(k int) {
 	}
 
 	if b.typ == 1 { // Se for folha
+
 		if b.m < b.ord*2 {
 			b.page = append(b.page, newkey)
 			b.m += 1
@@ -56,11 +58,13 @@ func (b *btree) Insert(k int) {
 }
 
 func sortpage(p []*key) {
-	for i := 0; i < len(p); i++ {
-		if i != len(p)-1 && p[i].value > p[i+1].value {
-			t := p[i]
-			p[i] = p[i+1]
-			p[i+1] = t
+	for k := 0; k < int(math.Pow(float64((len(p))), 2)); k++ {
+		for i := 0; i < len(p); i++ {
+			if i != len(p)-1 && p[i].value > p[i+1].value {
+				t := p[i]
+				p[i] = p[i+1]
+				p[i+1] = t
+			}
 		}
 	}
 }
@@ -93,8 +97,45 @@ func (b *btree) split() {
 				c1:    ch1,
 			},
 		}
+		b.m = 1
 	} else {
-		fmt.Println("...")
+		indpivot := int(len(b.page) / 2)
+		pivot := b.page[indpivot]
+		c0 := btree{
+			ord:  b.ord,
+			typ:  1,
+			m:    b.ord,
+			page: b.page[:indpivot],
+			anc:  b.anc,
+		}
+		c1 := btree{
+			ord:  b.ord,
+			typ:  1,
+			m:    b.ord,
+			page: b.page[indpivot+1:],
+			anc:  b.anc,
+		}
+		newkey := key{
+			value: pivot.value,
+			c0:    &c0,
+			c1:    &c1,
+		}
+		b.anc.page = append(b.anc.page, &newkey)
+		b.anc.m += 1
+		sortpage(b.anc.page)
+		for i, k := range b.anc.page {
+			if k.value == pivot.value {
+				if i-1 > 0 {
+					b.anc.page[i-1].c1 = k.c0
+				}
+				if i+1 < len(b.anc.page) {
+					b.anc.page[i+1].c0 = k.c1
+				}
+			}
+		}
+		if b.anc.m > b.ord*2 {
+			b.anc.split()
+		}
 	}
 }
 
@@ -103,7 +144,7 @@ func (b *btree) Print() {
 }
 
 func (b *btree) print(queue []*btree) {
-	fmt.Printf("\n[")
+	fmt.Printf("%v [", b.typ)
 	for i, k := range b.page {
 		fmt.Printf("%v", k.value)
 		if k.c0 != nil {
@@ -112,18 +153,15 @@ func (b *btree) print(queue []*btree) {
 		if k.c1 != nil {
 			queue = append(queue, k.c1)
 		}
-		if i != len(b.page)-1 {
+		if i == len(b.page)-1 {
+			fmt.Printf("]\n")
+		} else {
 			fmt.Printf(" ")
 		}
 	}
-	fmt.Printf("]")
-	for i, v := range queue {
-		if len(queue) == 1 {
-			queue = []*btree{}
-		} else {
-			queue = append(queue[:i], queue[i+1:]...)
-		}
-		v.print(queue)
+
+	for _, k := range queue {
+		newQueue := []*btree{}
+		k.print(newQueue)
 	}
-	fmt.Println("")
 }
