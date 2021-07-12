@@ -14,9 +14,9 @@ Para que o código rode é preciso ter o Go instalado em sua máquina e que todo
 
 Ao utilizar o método Print() é retornado a representação em string de como está sua árvore B que é organizado da seguinte forma:
 
-    * Cada linha contém o tipo da página, -1 para raiz e 1 para folhas, e o conteúdo da paǵina em um vetor.
+* Cada linha contém o tipo da página, -1 para raiz e 1 para folhas, e o conteúdo da paǵina em um vetor.
 
-    * A árvore é mostrada nível por nível, ou seja, a primeira linha é sempre a raiz e em seguida são impressas todas suas páginas filhas, dependendo da ordem da raiz. A seguir é impressa as páginas filhas dessas e assim por diante, linha por linha.
+* A árvore é mostrada nível por nível, ou seja, a primeira linha é sempre a raiz e em seguida são impressas todas suas páginas filhas, dependendo da ordem da raiz. A seguir é impressa as páginas filhas dessas e assim por diante, linha por linha.
 
 ## Erros rodando o código
 
