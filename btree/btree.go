@@ -7,7 +7,7 @@ import (
 
 type btree struct {
 	ord  int
-	typ  int // -1: root, 0: inter, 1: leaf
+	typ  int
 	m    int
 	page []*key
 	anc  *btree
@@ -29,35 +29,27 @@ func Initbtree(o int) btree {
 
 func (b *btree) Insert(k int) {
 
-	fmt.Printf("\nInserting %v", k)
-
 	if b.typ == 1 { // Se for folha
 
 		if b.m < b.ord*2 {
-			fmt.Printf("\n%v inserted\n", k)
 			b.page = append(b.page, &key{value: k})
 			b.m = len(b.page)
 			sortpage(b.page)
 			return
 		} else if b.m == b.ord*2 {
-			fmt.Printf("\n%v inserted\n", k)
 			b.page = append(b.page, &key{value: k})
 			sortpage(b.page)
 			b.split()
 			return
 		}
 	} else {
-		fmt.Println("\nNão é folha")
-		if k < b.page[0].value { // Entra na p0
-			fmt.Println("Entra na p0")
+		if k < b.page[0].value {
 			b.page[0].c0.Insert(k)
 			return
-		} else if k > b.page[len(b.page)-1].value { // Entra na pm
-			fmt.Println("Entra na pn")
+		} else if k > b.page[len(b.page)-1].value {
 			b.page[len(b.page)-1].c1.Insert(k)
 			return
 		} else {
-			fmt.Println("Entra na pi")
 			for i := 0; i < len(b.page)-1; i++ {
 				if k > b.page[i].value && k < b.page[i+1].value {
 					b.page[i+1].c0.Insert(k)
@@ -81,7 +73,6 @@ func sortpage(p []*key) {
 }
 
 func (b *btree) split() {
-	fmt.Println("Split")
 	if b.anc == nil {
 		cp := make([]*key, len(b.page))
 		copy(cp, b.page)
@@ -219,14 +210,10 @@ func (b *btree) findSucessor() (k int) {
 	sucessor := b.page[0].value
 	b.page = b.page[1:]
 	b.m -= 1
-	if b.m < b.ord {
-		fmt.Println("Menor")
-	}
 	return sucessor
 }
 
 func (b *btree) concat(w *key) {
-	fmt.Println("Concat")
 	newChild := btree{
 		ord: b.ord,
 		typ: 1,
@@ -256,7 +243,6 @@ func (b *btree) concat(w *key) {
 }
 
 func (b *btree) redistribute(w *key) {
-	fmt.Println("Redistribute")
 	temp := []*key{}
 
 	temp = append(temp, &key{value: w.value})
